@@ -1,20 +1,10 @@
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
-    kotlin("plugin.serialization") version "2.1.0"
-
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-}
-
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-
-if (localPropertiesFile.exists()) {
-    localProperties.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -30,9 +20,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        if (localProperties.containsKey("api_key")) {
-            buildConfigField("String", "API_KEY", "\"${localProperties.getProperty("api_key")}\"")
-        }
     }
 
     buildTypes {
@@ -52,12 +39,8 @@ android {
         jvmTarget = "11"
     }
 
-    viewBinding {
-        enable = true
-    }
     buildFeatures {
         buildConfig = true
-        viewBinding = true
     }
 }
 
@@ -74,16 +57,14 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //retrofit and serialization
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
-    //hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation(project(":feature:landingPresentation"))
+    implementation(project(":feature:landingBusiness"))
+    implementation(project(":core:network:networkbusinessapi"))
+    implementation(project(":core:network:networkbusiness"))
+    implementation(project(":core:network:networkpresentation"))
 
-    //fragment
-    implementation ("androidx.fragment:fragment-ktx:1.5.2")
+    implementation(project(":core:corelibs"))
 }

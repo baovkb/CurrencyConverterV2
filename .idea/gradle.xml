@@ -11,9 +11,17 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/corelibs" />
+            <option value="$PROJECT_DIR$/core/network" />
+            <option value="$PROJECT_DIR$/core/network/networkbusiness" />
+            <option value="$PROJECT_DIR$/core/network/networkbusinessapi" />
+            <option value="$PROJECT_DIR$/core/network/networkpresentation" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/landingBusiness" />
+            <option value="$PROJECT_DIR$/feature/landingPresentation" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
