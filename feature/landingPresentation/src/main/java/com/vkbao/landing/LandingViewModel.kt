@@ -2,6 +2,7 @@ package com.vkbao.landing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vkbao.landing.model.CurrencyModel
 import com.vkbao.landing.model.CurrencyState
 import com.vkbao.landing.model.ExchangeRateState
 import com.vkbao.landingbusiness.data.getExchangeRates.request.ExchangeRate
@@ -40,7 +41,8 @@ class LandingViewModel @Inject constructor(
                         _currenciesState.value = CurrencyState.Error(it.errorEntity)
                     }
                     is State.Success<Map<String, Currency>> -> {
-                        _currenciesState.value = CurrencyState.Success(it.data)
+                        val values = it.data.values.map { convertToCurrencyModel(it) }
+                        _currenciesState.value = CurrencyState.Success(values)
                     }
                 }
             }
@@ -62,5 +64,15 @@ class LandingViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun convertToCurrencyModel(currency: Currency): CurrencyModel {
+        return CurrencyModel(
+            symbol = currency.symbol,
+            name = currency.name,
+            symbolNative = currency.symbolNative,
+            decimalDigits = currency.decimalDigits,
+            code = currency.code
+        )
     }
 }

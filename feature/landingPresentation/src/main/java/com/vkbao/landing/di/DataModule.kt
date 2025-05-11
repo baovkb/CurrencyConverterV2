@@ -3,6 +3,7 @@ package com.vkbao.landing.di
 import com.vkbao.landingbusiness.data.datasource.remote.FreeCurrencyAPIService
 import com.vkbao.landingbusiness.data.getCurrencies.repo.GetCurrenciesRepoImpl
 import com.vkbao.landingbusiness.data.getExchangeRates.repo.GetExchangeRatesRepoImpl
+import com.vkbao.landingbusiness.data.store.CurrencyStore
 import com.vkbao.landingbusiness.domain.GetCurrenciesRepo
 import com.vkbao.landingbusiness.domain.GetExchangeRatesRepo
 import dagger.Module
@@ -17,8 +18,9 @@ object DataModule {
     @Provides
     @ActivityRetainedScoped
     fun provideGetCurrenciesRepo(
-        apiService: FreeCurrencyAPIService
-    ) : GetCurrenciesRepo = GetCurrenciesRepoImpl(apiService)
+        apiService: FreeCurrencyAPIService,
+        currencyStore: CurrencyStore
+    ) : GetCurrenciesRepo = GetCurrenciesRepoImpl(apiService, currencyStore)
 
     @Provides
     @ActivityRetainedScoped

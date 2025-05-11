@@ -7,12 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.vkbao.landing.LandingViewModel
+import com.vkbao.landing.currency_picker.composer.CurrencyPickerScreen
 import com.vkbao.landing.home.composer.HomeScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal sealed class Screen(val route: String) {
     object Home : Screen("home")
+    object CurrencyPicker : Screen("currency_picker")
 }
 
 @Composable
@@ -34,12 +36,16 @@ fun LandingNavigator(
             route = Screen.Home.route
         ) {
             HomeScreen(
-                landingViewModel = landingViewModel,
                 onBackPress = onLandingBackPress,
                 onSettingPress = {}
             )
         }
 
+        composable(
+            route = Screen.CurrencyPicker.route
+        ) {
+            CurrencyPickerScreen()
+        }
         //other composable functions
     }
 }

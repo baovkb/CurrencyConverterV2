@@ -1,10 +1,12 @@
 package com.vkbao.landing.home.composer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -33,108 +37,132 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vkbao.landing.LandingViewModel
 import com.vkbao.test.R
 
-val backgroundColor = Color(0xFFF5F7FB)
+val backgroundColor = Color(0xfff7f7ff)
+val textColor = Color(0xFF6391FF)
 
 @Composable
 internal fun HomeScreen (
-    landingViewModel: LandingViewModel,
     modifier: Modifier = Modifier,
     onBackPress: () -> Unit,
     onSettingPress: () -> Unit
 ) {
-    var itemList = listOf("USA", "VND", "CND", "Y", "CYN")
-    Column(modifier = modifier
+    Box(modifier = modifier
         .fillMaxSize()
         .background(backgroundColor)
     ) {
-        Box(modifier = modifier
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF2196F3),
-                        Color(0xFF42A5F5)
-                    )
-                ),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-            )
-            .fillMaxWidth()
-            .padding(bottom = 24.dp)
-        ) {
-            Column {
-                TopNavigationBar(
-                    modifier = modifier.padding(4.dp),
-                    title = stringResource(id = R.string.app_name),
-                    leftIcon = painterResource(id = R.drawable.back),
-                    leftAction = onBackPress,
-                    rightIcon = painterResource(id = R.drawable.setting),
-                    rightAction = onSettingPress
-                )
+        Image(
+            painter = painterResource(R.drawable.top_background),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = modifier.height(400.dp)
+        )
 
-                Spacer(modifier = modifier.height(48.dp))
-                CardSection(
-                    modifier = modifier.padding(start = 16.dp, end = 16.dp),
-                    itemList = itemList
-                )
+        Column(
+            modifier = modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = modifier.height(140.dp))
+
+            CardSection(
+                modifier = modifier
+                    .padding(horizontal = 21.dp)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        ambientColor = Color(0x3A0092F3),
+                    ),
+                itemList = listOf("USD", "VND")
+            )
+
+            Spacer(modifier = modifier.weight(1f))
+
+            val keyList = mutableListOf<@Composable () -> Unit>()
+            keyList.addAll(listOf(
+                {Text("0", fontSize = 24.sp)},
+                {Text(".", fontSize = 24.sp)},
+                { Icon(
+                    painter = painterResource(R.drawable.delete),
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = modifier.size(28.dp)
+                ) },
+            ))
+
+            for (i in 1..9) {
+                keyList.add{
+                    Text(i.toString(), fontSize = 24.sp)
+                }
             }
+
+            CustomKeyboard(
+                modifier = modifier.padding(21.dp),
+                itemButtons = keyList,
+                rowSpace = 42.dp,
+                columnSpace = 72.dp
+            )
         }
     }
 }
 
 @Composable
-fun TopNavigationBar(
+fun CustomKeyboard(
     modifier: Modifier = Modifier,
-    title: String,
-    leftIcon: Painter,
-    leftAction: () -> Unit,
-    rightIcon: Painter?,
-    rightAction: (() -> Unit)?,
+    itemButtons: List<@Composable () -> Unit>,
+    columnSpace: Dp = 0.dp,
+    rowSpace: Dp = 0.dp
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center,
+    LazyColumn (
+        modifier = modifier,
+        reverseLayout = true
     ) {
-        Row(modifier = modifier
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                modifier = modifier
-                    .size(28.dp)
-                    .clickable { leftAction() },
-                painter = leftIcon,
-                tint = Color.White,
-                contentDescription = null
-            )
+        val rowButton = itemButtons.chunked(3)
 
-            if (rightIcon != null) {
-                Icon(
-                    modifier = modifier
-                        .size(28.dp)
-                        .clickable { rightAction?.invoke() },
-                    painter = rightIcon,
-                    tint = Color.White,
-                    contentDescription = null
-                )
+        itemsIndexed(rowButton) { indexRow, keyRow ->
+            if (indexRow != 0)
+                Spacer(modifier = Modifier.height(rowSpace))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                keyRow.forEachIndexed { indexColumn, keyColumn ->
+                    Row {
+                        Button(
+                            modifier = Modifier.size(56.dp),
+                            onClick = {},
+                            shape = CircleShape,
+                            colors = ButtonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Black,
+                                disabledContentColor = Color.Gray,
+                                disabledContainerColor = Color.Transparent
+                            ),
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            keyColumn.invoke()
+                        }
+
+                        if (indexColumn != keyRow.lastIndex)
+                            Spacer(modifier = Modifier.width(columnSpace))
+                    }
+
+                }
             }
         }
 
-        Text(
-            text = title,
-            fontSize = 20.sp,
-            color = Color.White,
-        )
     }
 }
 
@@ -151,37 +179,44 @@ fun CardSection(
 
     Column(modifier = modifier
         .fillMaxWidth()
-        .shadow(elevation = 8.dp, shape = RoundedCornerShape(12.dp))
         .background(backgroundColor, shape = RoundedCornerShape(12.dp))
-        .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+        .padding(top = 40.dp, start = 16.dp, end = 16.dp, bottom = 40.dp)
+
     ) {
         CurrencyRow(
             currencyName = firstCurrency,
-            itemList = itemList,
-            onSelect = { firstCurrency = it },
             enableEdit = true,
             onValueChange = { fromValue = it },
             value = fromValue
         )
 
-        Spacer(modifier = modifier.height(16.dp))
-        IconButton(
-            onClick = {  },
-            modifier = modifier.background(Color(0xFF2196F3), shape = CircleShape)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.up_down),
-                contentDescription = null,
-                tint = backgroundColor,
-                modifier = Modifier.width(18.dp).height(18.dp)
-            )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .width(46.dp)
+                    .height(46.dp)
+                    .background(Color(0xFF2196F3), shape = CircleShape)
+                    .padding(top = 12.dp, bottom = 12.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.up_down),
+                    contentDescription = null,
+                    tint = backgroundColor,
+                )
+            }
+
+            Spacer(modifier.weight(1f))
+            Text("Rate")
+
         }
+
         Spacer(modifier = modifier.height(16.dp))
 
         CurrencyRow(
             currencyName = secondCurrency,
-            itemList = itemList,
-            onSelect = { secondCurrency = it },
             enableEdit = false,
             onValueChange = {},
             value = toValue
@@ -193,41 +228,34 @@ fun CardSection(
 @Composable
 fun CurrencyRow(
     currencyName: String,
-    itemList: List<String>,
-    onSelect: (String) -> Unit,
     enableEdit: Boolean,
     onValueChange: (String) -> Unit,
     value: String,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
 
-    Row(modifier = modifier) {
-        Row(modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically) {
-            Text(text = currencyName, fontSize = 18.sp)
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.down) ,
-                    contentDescription = null,
-                    modifier = modifier
-                        .width(12.dp)
-                        .height(12.dp)
-                )
-            }
-        }
-
-        //dropdown menu
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            itemList.forEach { item ->
-                DropdownMenuItem(text = { Text(text = item) }, onClick = { onSelect.invoke(item) })
-            }
+    Row(modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = currencyName,
+            fontSize = 18.sp,
+            color = textColor,
+            fontWeight = FontWeight.SemiBold
+        )
+        IconButton(onClick = {  }) {
+            Icon(
+                painter = painterResource(id = R.drawable.down) ,
+                contentDescription = null,
+                modifier = modifier
+                    .width(12.dp)
+                    .height(12.dp)
+            )
         }
 
         OutlinedTextField(
+            modifier = modifier.height(60.dp),
             value = value,
             textStyle = TextStyle(
                 fontSize = 18.sp,
@@ -237,19 +265,23 @@ fun CurrencyRow(
             onValueChange = onValueChange,
             shape = RoundedCornerShape(12.dp),
             enabled = enableEdit,
+            singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                disabledBorderColor = Color.LightGray,
-                focusedContainerColor = Color(0xFFeff3fe),
-                unfocusedContainerColor = Color(0xFFeff3fe),
-            )
+                focusedBorderColor = Color(0xFFCAD3F6),
+                unfocusedBorderColor = Color(0xFFCAD3F6),
+                disabledBorderColor = Color(0xFFCAD3F6),
+                focusedContainerColor = Color(0xFFedf2ff),
+                unfocusedContainerColor = Color(0xFFedf2ff),
+            ),
         )
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun HomeScreenReview() {
-//    HomeScreen (onBackPress = {}, onSettingPress = {})
-//}
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenReview() {
+    HomeScreen(
+        onBackPress = {},
+        onSettingPress = {},
+    )
+}
