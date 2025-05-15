@@ -12,6 +12,7 @@ class AuthInterceptor(
         requestBuilder.addHeader("apikey", apiKey)
         val request = requestBuilder.build()
 
+        println(request.toString())
         return chain.proceed(request)
     }
 }

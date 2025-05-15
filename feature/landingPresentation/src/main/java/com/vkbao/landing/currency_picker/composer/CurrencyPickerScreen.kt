@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,8 +47,11 @@ val dividerColor = Color(0xFFCAD3F6)
 
 @Composable
 fun CurrencyPickerScreen(
+    viewModel: LandingViewModel,
+    selectedCurrency: String,
+    onSelectedChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LandingViewModel
+    onGetBack: () -> Unit,
 ) {
     val currencyState by viewModel.currenciesState.collectAsStateWithLifecycle()
     viewModel.getCurrencies()
@@ -61,7 +65,7 @@ fun CurrencyPickerScreen(
         TopNavigationBar(
             modifier = Modifier.padding(horizontal = 21.dp),
             rightIcon = painterResource(R.drawable.close),
-            rightAction = {}
+            rightAction = onGetBack
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -106,6 +110,7 @@ fun CurrencyPickerScreen(
             is CurrencyState.Error -> {}
             CurrencyState.Init -> {}
             CurrencyState.Loading -> {}
+
             is CurrencyState.Success -> {
                 val currencies = (currencyState as CurrencyState.Success).currencies.toList()
                 LazyColumn(modifier = Modifier.padding(horizontal = 21.dp)) {
@@ -113,6 +118,7 @@ fun CurrencyPickerScreen(
                         CurrencyItem(
                             isFirst = index == 0,
                             isSelected = false,
+                            onSelect = onSelectedChange,
                             currency = item
                         )
                     }
@@ -128,15 +134,21 @@ fun CurrencyPickerScreen(
 fun CurrencyItem(
     isFirst: Boolean,
     isSelected: Boolean,
+    onSelect: (String) -> Unit,
     currency: CurrencyModel
 ) {
     if (!isFirst) {
         Spacer(modifier = Modifier.padding(top = 21.dp))
     }
-    Row(modifier = Modifier.padding(start = 16.dp)) {
-        Text(currency.code, fontSize = 18.sp)
+    Row(modifier = Modifier
+        .clickable {
+            onSelect.invoke(currency.code)
+        }
+        .padding(start = 16.dp)
+    ) {
+        Text(currency.code, fontSize = 18.sp, modifier = Modifier.defaultMinSize(minWidth = 60.dp))
         Spacer(modifier = Modifier.width(24.dp))
-        Text("United State", fontSize = 18.sp)
+        Text(currency.name, fontSize = 18.sp)
     }
     Spacer(
         modifier = Modifier

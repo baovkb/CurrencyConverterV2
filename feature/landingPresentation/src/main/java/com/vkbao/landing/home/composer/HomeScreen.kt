@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,6 +53,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vkbao.landing.LandingViewModel
 import com.vkbao.landing.model.CurrencyState
 import com.vkbao.landing.model.ExchangeRateState
+import com.vkbao.landing.shimmer.composer.LandingShimmer
+import com.vkbao.landing.utils.roundToString
+import com.vkbao.landing.utils.toDoubleSafely
 import com.vkbao.landingbusiness.data.getExchangeRates.request.ExchangeRate
 import com.vkbao.test.R
 
@@ -59,64 +63,81 @@ val backgroundColor = Color(0xfff7f7ff)
 val textColor = Color(0xFF6391FF)
 
 @Composable
-internal fun HomeScreen (
-    modifier: Modifier = Modifier,
-    onFromPress: (String) -> Unit,
+fun HomeScreen (
+    onFromPress: () -> Unit,
     fromCurrency: String?,
     toCurrency: String?,
-    onToPress: (String) -> Unit,
-    viewModel: LandingViewModel
+    onToPress: () -> Unit,
+    viewModel: LandingViewModel,
+    modifier: Modifier = Modifier,
+    onReverse: () -> Unit
 ) {
-    var fromCurrency by rememberSaveable { mutableStateOf(fromCurrency ?: "") }
-    var toCurrency by rememberSaveable { mutableStateOf(toCurrency ?: "") }
     var fromValue by rememberSaveable { mutableStateOf("0") }
     var toValue by rememberSaveable { mutableStateOf("0") }
 
-    val currenciesState by viewModel.currenciesState.collectAsStateWithLifecycle()
+    val currencyState by viewModel.currenciesState.collectAsStateWithLifecycle()
     val exchangeRatesState by viewModel.exchangeRateState.collectAsStateWithLifecycle()
-    viewModel.getCurrencies()
 
-    when(currenciesState) {
-        is CurrencyState.Error,
+    when(currencyState) {
         CurrencyState.Init,
-        CurrencyState.Loading,
-        is CurrencyState.Success -> {
-            val currencies = (currenciesState as CurrencyState.Success).currencies
-            if (currencies.size > 1) {
-                if (fromCurrency.isEmpty()) {
-                    fromCurrency = currencies[0].code
-                }
-                if (toCurrency.isEmpty()) {
-                    toCurrency = currencies[1].code
-                }
-
-                viewModel.getExchangeRates(ExchangeRate(fromCurrency, toCurrency))
-            }
-        }
+        CurrencyState.Loading -> LandingShimmer()
+        else -> {}
     }
 
     when(exchangeRatesState) {
-        is ExchangeRateState.Error,
-        ExchangeRateState.Init,
-        ExchangeRateState.Loading,
         is ExchangeRateState.Success -> {
-            HomeScreen()
+            val rateString = (exchangeRatesState as ExchangeRateState.Success).currencies[toCurrency]?.roundToString(2) ?: "0"
+            val rateNum = rateString.toDoubleSafely()
+
+                HomeScreen(
+                fromCurrency = fromCurrency ?: "",
+                fromValue = fromValue,
+                onFromPress = onFromPress,
+                toCurrency = toCurrency ?: "",
+                toValue = (fromValue.toDoubleSafely() * rateNum).roundToString(2),
+                onToPress = onToPress,
+                modifier = modifier,
+                    onReverse = onReverse,
+                rate = "1 $fromCurrency = $rateString $toCurrency",
+                    onTyping = {
+                        when(it) {
+                            "." -> {
+                                if (!fromValue.contains(".")) {
+                                    fromValue += it
+                                }
+                            }
+                            "delete" -> {
+                                fromValue = fromValue.dropLast(1)
+                            }
+                            else -> {
+                                fromValue += it
+                            }
+                        }
+                    },
+
+            )
         }
+        is ExchangeRateState.Error -> {
+            println("error: ${(exchangeRatesState as ExchangeRateState.Error).errorEntity}")
+        }
+        else -> LandingShimmer()
     }
 
 
 }
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     fromCurrency: String,
-    onFromChange: (String) -> Unit,
     fromValue: String,
-    onFromPress: (String) -> Unit,
+    onFromPress: () -> Unit,
     toCurrency: String,
     toValue: String,
-    onToPress: (String) -> Unit,
+    onToPress: () -> Unit,
     modifier: Modifier = Modifier,
+    rate: String,
+    onTyping: (value: String) -> Unit,
+    onReverse: () -> Unit
 ) {
     Box(modifier = modifier
         .fillMaxSize()
@@ -145,15 +166,18 @@ fun HomeScreen(
                 onFromPress = onFromPress,
                 onToPress = onToPress,
                 fromCurrency = fromCurrency,
-                onFromChange = onFromChange,
                 fromValue = fromValue,
                 toCurrency = toCurrency,
-                toValue = toValue
+                toValue = toValue,
+                rate = rate,
+                onReverse = onReverse
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             val keyList = mutableListOf<@Composable () -> Unit>()
+            val keyMap = mutableListOf("0", ".", "delete")
+
             keyList.addAll(listOf(
                 {Text("0", fontSize = 24.sp)},
                 {Text(".", fontSize = 24.sp)},
@@ -169,13 +193,17 @@ fun HomeScreen(
                 keyList.add{
                     Text(i.toString(), fontSize = 24.sp)
                 }
+                keyMap.add(i.toString())
             }
 
             CustomKeyboard(
                 modifier = Modifier.padding(21.dp),
                 itemButtons = keyList,
-                rowSpace = 42.dp,
-                columnSpace = 72.dp
+                rowSpace = 38.dp,
+                columnSpace = 68.dp,
+                onTyping = {
+                    onTyping.invoke(keyMap[it])
+                }
             )
         }
     }
@@ -186,7 +214,8 @@ fun CustomKeyboard(
     modifier: Modifier = Modifier,
     itemButtons: List<@Composable () -> Unit>,
     columnSpace: Dp = 0.dp,
-    rowSpace: Dp = 0.dp
+    rowSpace: Dp = 0.dp,
+    onTyping: (position: Int) -> Unit
 ) {
     LazyColumn (
         modifier = modifier,
@@ -205,8 +234,10 @@ fun CustomKeyboard(
                 keyRow.forEachIndexed { indexColumn, keyColumn ->
                     Row {
                         Button(
-                            modifier = Modifier.size(56.dp),
-                            onClick = {},
+                            modifier = Modifier.size(68.dp),
+                            onClick = {
+                                onTyping.invoke(indexRow*3 + indexColumn)
+                            },
                             shape = CircleShape,
                             colors = ButtonColors(
                                 containerColor = Color.Transparent,
@@ -233,13 +264,14 @@ fun CustomKeyboard(
 @Composable
 fun CardSection(
     modifier: Modifier = Modifier,
-    onFromPress: (String) -> Unit,
-    onToPress: (String) -> Unit,
+    onFromPress: () -> Unit,
+    onToPress: () -> Unit,
     fromCurrency: String,
-    onFromChange: (String) -> Unit,
     fromValue: String,
     toCurrency: String,
-    toValue: String
+    toValue: String,
+    rate: String,
+    onReverse: () -> Unit
 ) {
 
     Column(modifier = modifier
@@ -251,7 +283,6 @@ fun CardSection(
         CurrencyRow(
             currencyName = fromCurrency,
             enableEdit = true,
-            onValueChange = onFromChange,
             value = fromValue,
             onCurrencyPress = onFromPress
         )
@@ -260,7 +291,7 @@ fun CardSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
-                onClick = {},
+                onClick = onReverse,
                 modifier = Modifier
                     .width(46.dp)
                     .height(46.dp)
@@ -275,7 +306,7 @@ fun CardSection(
             }
 
             Spacer(modifier.weight(1f))
-            Text("Rate")
+            Text(rate)
 
         }
 
@@ -283,8 +314,7 @@ fun CardSection(
 
         CurrencyRow(
             currencyName = toCurrency,
-            enableEdit = false,
-            onValueChange = {},
+            enableEdit = true,
             value = toValue,
             onCurrencyPress = onToPress
         )
@@ -296,9 +326,8 @@ fun CardSection(
 fun CurrencyRow(
     currencyName: String,
     enableEdit: Boolean,
-    onValueChange: (String) -> Unit,
     value: String,
-    onCurrencyPress: (String) -> Unit,
+    onCurrencyPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -309,7 +338,7 @@ fun CurrencyRow(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable {
-
+                onCurrencyPress.invoke()
             }
         ) {
             Text(
@@ -337,9 +366,10 @@ fun CurrencyRow(
                 color = Color.Black,
                 textAlign = TextAlign.Right
             ),
-            onValueChange = onValueChange,
+            onValueChange = {},
             shape = RoundedCornerShape(12.dp),
             enabled = enableEdit,
+            readOnly = true,
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFCAD3F6),
@@ -354,9 +384,16 @@ fun CurrencyRow(
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenReview() {
+fun HomeScreenPreview() {
     HomeScreen(
-        onBackPress = {},
-        onSettingPress = {},
+        fromCurrency = "",
+        fromValue = "",
+        onFromPress = {},
+    toCurrency= "",
+    toValue="",
+    onToPress={},
+    rate="",
+    onTyping = {},
+    onReverse={}
     )
 }

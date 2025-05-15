@@ -14,7 +14,7 @@ class GetExchangeRatesRepoImpl(
         )
 
         return if (response.isSuccessful) {
-            response.body()!!
+            response.body()!!.data
         } else {
             val errorMsg = response.errorBody()?.string() ?: "Unexpected Error"
             throw Exception(errorMsg)

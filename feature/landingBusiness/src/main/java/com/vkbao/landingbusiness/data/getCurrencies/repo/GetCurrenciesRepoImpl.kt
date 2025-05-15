@@ -11,13 +11,15 @@ class GetCurrenciesRepoImpl(
     private val currencyStore: CurrencyStore
 ) : GetCurrenciesRepo {
     override suspend fun invoke(i: Unit): Map<String, Currency> {
-        return if (currencyStore.entity.isNullOrEmpty()) {
+        return if (!currencyStore.entity.isNullOrEmpty()) {
             currencyStore.entity!!
         } else {
             val response = apiService.getCurrencies()
 
             if (response.isSuccessful) {
-                response.body()!!.mapValues { it.value.toEntity() }
+                val data = response.body()!!.data.mapValues { it.value.toEntity() }
+                currencyStore.entity = data
+                return data
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Unexpected Error"
                 throw Exception(errorMsg)

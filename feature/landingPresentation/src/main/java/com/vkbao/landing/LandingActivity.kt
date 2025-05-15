@@ -17,10 +17,7 @@ class LandingActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LandingNavigator(
-                landingViewModel = viewModel,
-                onLandingBackPress = {
-                    this@LandingActivity.finish()
-                }
+                landingViewModel = viewModel
             )
         }
     }
