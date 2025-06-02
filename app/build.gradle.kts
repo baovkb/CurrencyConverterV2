@@ -60,8 +60,8 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
-    implementation(project(":feature:landingPresentation"))
-    implementation(project(":feature:landingBusiness"))
+    implementation(project(Modules.landingPresentation))
+    implementation(project(Modules.landingBusiness))
     implementation(project(":core:network:networkbusinessapi"))
     implementation(project(":core:network:networkbusiness"))
     implementation(project(":core:network:networkpresentation"))

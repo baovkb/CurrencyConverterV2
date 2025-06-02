@@ -4,6 +4,17 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/buildSrc" name="buildSrc">
+                <projects>
+                  <project path="$PROJECT_DIR$/buildSrc" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
@@ -11,15 +22,23 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/corelibs" />
             <option value="$PROJECT_DIR$/core/network" />
             <option value="$PROJECT_DIR$/core/network/networkbusiness" />
             <option value="$PROJECT_DIR$/core/network/networkbusinessapi" />
             <option value="$PROJECT_DIR$/core/network/networkpresentation" />
+            <option value="$PROJECT_DIR$/core/utilities" />
             <option value="$PROJECT_DIR$/feature" />
-            <option value="$PROJECT_DIR$/feature/landingBusiness" />
-            <option value="$PROJECT_DIR$/feature/landingPresentation" />
+            <option value="$PROJECT_DIR$/feature/currencypicker" />
+            <option value="$PROJECT_DIR$/feature/currencypicker/currencyPickerBusiness" />
+            <option value="$PROJECT_DIR$/feature/currencypicker/currencyPickerBusinessApi" />
+            <option value="$PROJECT_DIR$/feature/currencypicker/currencyPickerPresentation" />
+            <option value="$PROJECT_DIR$/feature/landing" />
+            <option value="$PROJECT_DIR$/feature/landing/landingBusiness" />
+            <option value="$PROJECT_DIR$/feature/landing/landingBusinessApi" />
+            <option value="$PROJECT_DIR$/feature/landing/landingPresentation" />
           </set>
         </option>
       </GradleProjectSettings>
