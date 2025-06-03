@@ -78,6 +78,8 @@ dependencies {
     implementation(project(Modules.networkPresentation))
     implementation(project(Modules.networkBusinessApi))
 
+    implementation(project(Modules.currencyPickerBusinessApi))
+
     implementation(project(Modules.landingBusiness))
     implementation(project(Modules.landingBusinessApi))
 }

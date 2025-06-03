@@ -2,15 +2,14 @@ package com.vkbao.landing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vkbao.currencypickerbusinessapi.currencies.CurrencyData
 import com.vkbao.landing.model.CurrencyModel
 import com.vkbao.landing.model.ExchangeRateState
 import com.vkbao.landing.model.GetCurrenciesState
-import com.vkbao.landingbusiness.data.getCurrencies.repo.GetCurrenciesStatus
-import com.vkbao.landingbusiness.data.getExchangeRates.request.ExchangeRate
-import com.vkbao.landingbusiness.domain.GetCurrenciesUseCase
+import com.vkbao.landingbusiness.data.getExchangeRate.request.ExchangeRate
 import com.vkbao.landingbusiness.domain.GetExchangeRatesUseCase
-import com.vkbao.landingbusiness.domain.entity.Currency
-import com.vkbao.utilities.error.ErrorEntity
+import com.vkbao.currencypickerbusinessapi.currencies.GetCurrenciesProvider
+import com.vkbao.currencypickerbusinessapi.selectedCurrency.SelectedCurrencyProvider
 import com.vkbao.utilities.flow.mapBoth
 import com.vkbao.utilities.state.State
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +21,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
-    private val currenciesUseCase: GetCurrenciesUseCase,
-    private val exchangeRatesUseCase: GetExchangeRatesUseCase
+    private val currenciesProvider: GetCurrenciesProvider,
+    private val exchangeRatesUseCase: GetExchangeRatesUseCase,
+    private val selectedCurrencyProvider: SelectedCurrencyProvider
 ) : ViewModel() {
 
     private val _currenciesState: MutableStateFlow<GetCurrenciesState>
@@ -34,27 +34,21 @@ class LandingViewModel @Inject constructor(
         = MutableStateFlow((ExchangeRateState.Init))
     val exchangeRateState = _exchangeRateState.asStateFlow()
 
+    private val _selectedCurrency = MutableStateFlow<String>("")
+    val selectedCurrency = _selectedCurrency.asStateFlow()
+
     fun getCurrencies() {
         viewModelScope.launch(Dispatchers.IO) {
             _currenciesState.value = GetCurrenciesState.Loading
 
-            currenciesUseCase.invoke(Unit)
+            currenciesProvider.getCurrencies()
                 .mapBoth(
                     error = { GetCurrenciesState.Error(it) },
                     success = {
-                        when(it) {
-                            is GetCurrenciesStatus.Success ->
-                                GetCurrenciesState.Success(it.data.mapValues { pair ->
-                                    convertToCurrencyModel(pair.value) }
-                                )
-                            is GetCurrenciesStatus.UndefinedError ->
-                                GetCurrenciesState.Error(
-                                    ErrorEntity(
-                                        it.code,
-                                        it.message
-                                    )
-                                )
+                        val currenciesList = it.map { pair ->
+                            convertToCurrencyModel(pair.value)
                         }
+                        GetCurrenciesState.Success(currenciesList)
                     }
                 )
                 .collect {
@@ -80,13 +74,27 @@ class LandingViewModel @Inject constructor(
         }
     }
 
-    private fun convertToCurrencyModel(currency: Currency): CurrencyModel {
+    private fun convertToCurrencyModel(currencyData: CurrencyData): CurrencyModel {
         return CurrencyModel(
-            symbol = currency.symbol,
-            name = currency.name,
-            symbolNative = currency.symbolNative,
-            decimalDigits = currency.decimalDigits,
-            code = currency.code
+            symbol = currencyData.symbol,
+            name = currencyData.name,
+            symbolNative = currencyData.symbolNative,
+            decimalDigits = currencyData.decimalDigits,
+            code = currencyData.code
         )
+    }
+
+    fun getSelectedCurrency() {
+        viewModelScope.launch(Dispatchers.IO) {
+            selectedCurrencyProvider.getSelectedCurrency().collect {
+                _selectedCurrency.value = it
+            }
+        }
+    }
+
+    fun setSelectedCurrency(currency: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            selectedCurrencyProvider.setSelectedCurrency(currency)
+        }
     }
 }

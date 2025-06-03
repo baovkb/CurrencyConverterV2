@@ -35,13 +35,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,10 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vkbao.landing.LandingViewModel
 import com.vkbao.landing.model.ExchangeRateState
+import com.vkbao.landing.model.GetCurrenciesState
 import com.vkbao.landing.shimmer.composer.LandingShimmer
 import com.vkbao.landing.utils.roundToString
 import com.vkbao.landing.utils.toDoubleSafely
-import com.vkbao.landingbusiness.data.getExchangeRates.request.ExchangeRate
+import com.vkbao.landingbusiness.data.getExchangeRate.request.ExchangeRate
 import com.vkbao.test.R
 
 val backgroundColor = Color(0xfff7f7ff)
@@ -64,23 +61,25 @@ val textColor = Color(0xFF6391FF)
 @Composable
 fun HomeScreen (
     onFromPress: () -> Unit,
-    fromCurrency: String?,
-    toCurrency: String?,
     onToPress: () -> Unit,
     viewModel: LandingViewModel,
-    modifier: Modifier = Modifier,
-    onReverse: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     var fromValue by rememberSaveable { mutableStateOf("0") }
-    var toValue by rememberSaveable { mutableStateOf("0") }
 
-    val currencyState by viewModel.currenciesState.collectAsStateWithLifecycle()
+    val currenciesState by viewModel.currenciesState.collectAsStateWithLifecycle()
     val exchangeRatesState by viewModel.exchangeRateState.collectAsStateWithLifecycle()
 
-    when(currencyState) {
-        CurrencyState.Init,
-        CurrencyState.Loading -> LandingShimmer()
-        else -> {}
+
+    when(currenciesState) {
+        is GetCurrenciesState.Error -> {}
+        GetCurrenciesState.Init -> {}
+        is GetCurrenciesState.Success -> {
+            viewModel.setFromCurrency((currenciesState as GetCurrenciesState.Success).data[0].code)
+            viewModel.setToCurrency((currenciesState as GetCurrenciesState.Success).data[1].code)
+        }
+
+        GetCurrenciesState.Loading -> {}
     }
 
     when(exchangeRatesState) {
@@ -89,14 +88,19 @@ fun HomeScreen (
             val rateNum = rateString.toDoubleSafely()
 
                 HomeScreen(
-                fromCurrency = fromCurrency ?: "",
+                fromCurrency = fromCurrency,
                 fromValue = fromValue,
-                onFromPress = onFromPress,
-                toCurrency = toCurrency ?: "",
+                onFromPress = {
+                    viewModel.setSelectedCurrency(fromCurrency)
+                    onFromPress.invoke()
+                },
+                toCurrency = toCurrency,
                 toValue = (fromValue.toDoubleSafely() * rateNum).roundToString(2),
-                onToPress = onToPress,
+                onToPress = {
+                    viewModel.setSelectedCurrency(toCurrency)
+                    onToPress.invoke()
+                },
                 modifier = modifier,
-                    onReverse = onReverse,
                 rate = "1 $fromCurrency = $rateString $toCurrency",
                     onTyping = {
                         when(it) {
@@ -113,7 +117,9 @@ fun HomeScreen (
                             }
                         }
                     },
+                onReverse = {
 
+                }
             )
         }
         is ExchangeRateState.Error -> {

@@ -62,6 +62,8 @@ dependencies {
 
     implementation(project(Modules.cores))
     implementation(project(Modules.utilities))
+    implementation(project(Modules.networkPresentation))
+    implementation(project(Modules.networkBusinessApi))
 
     implementation(project(Modules.currencyPickerBusiness))
     implementation(project(Modules.currencyPickerBusinessApi))

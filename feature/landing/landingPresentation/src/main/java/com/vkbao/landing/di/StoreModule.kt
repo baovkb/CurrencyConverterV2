@@ -1,6 +1,6 @@
 package com.vkbao.landing.di
 
-import com.vkbao.landingbusiness.data.store.CurrencyStore
+import com.vkbao.landingbusiness.data.store.ExchangeRateStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ object StoreModule {
 
     @Provides
     @Singleton
-    fun provideCurrencyStore() = CurrencyStore
+    fun provideExchangeRateStore() = ExchangeRateStore
 }

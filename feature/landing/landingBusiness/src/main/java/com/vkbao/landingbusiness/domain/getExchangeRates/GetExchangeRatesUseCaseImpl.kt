@@ -1,6 +1,6 @@
 package com.vkbao.landingbusiness.domain.getExchangeRates
 
-import com.vkbao.landingbusiness.data.getExchangeRates.request.ExchangeRate
+import com.vkbao.landingbusiness.data.getExchangeRate.request.ExchangeRate
 import com.vkbao.landingbusiness.domain.GetExchangeRatesRepo
 import com.vkbao.landingbusiness.domain.GetExchangeRatesUseCase
 import com.vkbao.utilities.error.ErrorEntity
@@ -12,16 +12,14 @@ import kotlinx.coroutines.flow.flow
 class GetExchangeRatesUseCaseImpl (
     private val exchangeRatesRepo: GetExchangeRatesRepo
 ) : GetExchangeRatesUseCase {
-    override suspend fun invoke(i: ExchangeRate): Flow<com.vkbao.utilities.state.State<Map<String, Double>>> = flow {
+    override suspend fun invoke(i: ExchangeRate): Flow<State<Map<String, Double>>> = flow {
         try {
             val result = exchangeRatesRepo.invoke(i)
-            emit(com.vkbao.utilities.state.State.Success(result))
+            emit(State.Success(result))
         } catch (e: Exception) {
-            emit(com.vkbao.utilities.state.State.Error(
-                com.vkbao.utilities.error.ErrorEntity(
+            emit(State.Error(ErrorEntity(
                     "000",
-                    e.message ?: ""
-                )
+                    e.message ?: "")
             ))
         }
     }

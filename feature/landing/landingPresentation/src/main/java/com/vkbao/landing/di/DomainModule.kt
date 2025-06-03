@@ -1,13 +1,14 @@
 package com.vkbao.landing.di
 
-import com.vkbao.landingbusiness.domain.GetCurrenciesRepo
-import com.vkbao.landingbusiness.domain.GetCurrenciesUseCase
+import com.vkbao.landingbusiness.domain.FromCurrencyRepo
+import com.vkbao.landingbusiness.domain.FromCurrencyUseCase
 import com.vkbao.landingbusiness.domain.GetExchangeRatesRepo
 import com.vkbao.landingbusiness.domain.GetExchangeRatesUseCase
-import com.vkbao.landingbusiness.domain.getCurrencies.GetCurrenciesProviderImpl
-import com.vkbao.landingbusiness.domain.getCurrencies.GetCurrenciesUseCaseImpl
+import com.vkbao.landingbusiness.domain.ToCurrencyRepo
+import com.vkbao.landingbusiness.domain.ToCurrencyUseCase
+import com.vkbao.landingbusiness.domain.fromCurrency.FromCurrencyUseCaseImpl
 import com.vkbao.landingbusiness.domain.getExchangeRates.GetExchangeRatesUseCaseImpl
-import com.vkbao.landingbusinessapi.currencies.GetCurrenciesProvider
+import com.vkbao.landingbusiness.domain.toCurrency.ToCurrencyUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,19 +21,19 @@ class DomainModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetCurrenciesUseCase(
-        getCurrenciesRepo: GetCurrenciesRepo
-    ) : GetCurrenciesUseCase = GetCurrenciesUseCaseImpl(getCurrenciesRepo)
-
-    @ViewModelScoped
-    @Provides
     fun provideGetExchangeRatesUseCase(
         getExchangeRatesRepo: GetExchangeRatesRepo
     ) : GetExchangeRatesUseCase = GetExchangeRatesUseCaseImpl(getExchangeRatesRepo)
 
-    @ViewModelScoped
     @Provides
-    fun provideGetCurrencyProvider(
-        getCurrenciesRepo: GetCurrenciesRepo
-    ) : GetCurrenciesProvider = GetCurrenciesProviderImpl(getCurrenciesRepo)
+    @ViewModelScoped
+    fun provideFromCurrencyUseCase(
+        repo: FromCurrencyRepo
+    ): FromCurrencyUseCase = FromCurrencyUseCaseImpl(repo)
+
+    @Provides
+    @ViewModelScoped
+    fun provideToCurrencyUseCase(
+        repo: ToCurrencyRepo
+    ): ToCurrencyUseCase = ToCurrencyUseCaseImpl(repo)
 }

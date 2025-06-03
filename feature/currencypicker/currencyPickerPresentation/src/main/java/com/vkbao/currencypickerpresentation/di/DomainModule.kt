@@ -1,11 +1,11 @@
 package com.vkbao.currencypickerpresentation.di
 
-import com.vkbao.currencypickerbusiness.data.FromCurrencyRepo
-import com.vkbao.currencypickerbusiness.data.FromCurrencyUseCase
-import com.vkbao.currencypickerbusiness.data.ToCurrencyRepo
-import com.vkbao.currencypickerbusiness.data.ToCurrencyUseCase
-import com.vkbao.currencypickerbusiness.domain.fromCurrency.FromCurrencyUseCaseImpl
-import com.vkbao.currencypickerbusiness.domain.toCurrency.ToCurrencyUseCaseImpl
+import com.vkbao.currencypickerbusiness.domain.GetCurrenciesRepo
+import com.vkbao.currencypickerbusiness.domain.GetCurrenciesUseCase
+import com.vkbao.currencypickerbusiness.domain.SelectedCurrencyRepo
+import com.vkbao.currencypickerbusiness.domain.SelectedCurrencyUseCase
+import com.vkbao.currencypickerbusiness.domain.getCurrencies.GetCurrenciesUseCaseImpl
+import com.vkbao.currencypickerbusiness.domain.selectedCurrency.SelectedCurrencyUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,15 +16,16 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @InstallIn(ViewModelComponent::class)
 class DomainModule {
 
-    @Provides
     @ViewModelScoped
-    fun provideFromCurrencyUseCase(
-        repo: FromCurrencyRepo
-    ): FromCurrencyUseCase = FromCurrencyUseCaseImpl(repo)
+    @Provides
+    fun provideGetCurrenciesUseCase(
+        getCurrenciesRepo: GetCurrenciesRepo
+    ): GetCurrenciesUseCase = GetCurrenciesUseCaseImpl(getCurrenciesRepo)
 
     @Provides
     @ViewModelScoped
-    fun provideToCurrencyUseCase(
-        repo: ToCurrencyRepo
-    ): ToCurrencyUseCase = ToCurrencyUseCaseImpl(repo)
+    fun provideFromCurrencyUseCase(
+        repo: SelectedCurrencyRepo
+    ): SelectedCurrencyUseCase = SelectedCurrencyUseCaseImpl(repo)
+
 }

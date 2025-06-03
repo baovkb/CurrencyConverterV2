@@ -1,10 +1,11 @@
 package com.vkbao.currencypickerpresentation.di
 
-import com.vkbao.currencypickerbusiness.data.FromCurrencyRepo
-import com.vkbao.currencypickerbusiness.data.ToCurrencyRepo
-import com.vkbao.currencypickerbusiness.data.fromCurrency.FromCurrencyRepoImpl
+import com.vkbao.currencypickerbusiness.data.datasource.remote.CurrencyService
+import com.vkbao.currencypickerbusiness.data.getCurrencies.repo.GetCurrenciesRepoImpl
+import com.vkbao.currencypickerbusiness.data.selectedCurrency.SelectedCurrencyRepoImpl
 import com.vkbao.currencypickerbusiness.data.store.SelectedCurrenciesStore
-import com.vkbao.currencypickerbusiness.data.toCurrency.ToCurrencyRepoImpl
+import com.vkbao.currencypickerbusiness.domain.GetCurrenciesRepo
+import com.vkbao.currencypickerbusiness.domain.SelectedCurrencyRepo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,13 +18,18 @@ class DataModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun provideFromCurrencyRepo(
-        store: SelectedCurrenciesStore
-    ): FromCurrencyRepo = FromCurrencyRepoImpl(store)
+    fun provideGetCurrenciesRepo(
+        apiService: CurrencyService,
+        currencyStore: com.vkbao.currencypickerbusiness.data.store.CurrencyStore
+    ) : GetCurrenciesRepo = GetCurrenciesRepoImpl(
+        apiService,
+        currencyStore
+    )
 
     @Provides
     @ActivityRetainedScoped
-    fun provideToCurrencyRepo(
+    fun provideFromCurrencyRepo(
         store: SelectedCurrenciesStore
-    ): ToCurrencyRepo = ToCurrencyRepoImpl(store)
+    ): SelectedCurrencyRepo = SelectedCurrencyRepoImpl(store)
+
 }

@@ -5,6 +5,9 @@ plugins {
     kotlin("plugin.serialization") version "2.1.0"
 }
 
+group = "com.vkbao.landingBusiness"
+version = "1.0.0"
+
 android {
     namespace = "com.vkbao.landingBusiness"
     compileSdk = 35

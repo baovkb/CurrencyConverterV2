@@ -1,6 +1,6 @@
 package com.vkbao.landing.di
 
-import com.vkbao.landingbusiness.data.datasource.remote.FreeCurrencyAPIService
+import com.vkbao.landingbusiness.data.datasource.remote.ExchangeRatesService
 import com.vkbao.networkbusinessapi.RetrofitProvider
 import dagger.Module
 import dagger.Provides
@@ -14,7 +14,7 @@ object ServiceModule {
 
     @Provides
     @Singleton
-    fun provideFreeCurrencyApiService(retrofit: RetrofitProvider): FreeCurrencyAPIService {
-        return retrofit.invoke().create(FreeCurrencyAPIService::class.java)
+    fun provideExchangeRatesService(retrofit: RetrofitProvider): ExchangeRatesService {
+        return retrofit.invoke().create(ExchangeRatesService::class.java)
     }
 }
