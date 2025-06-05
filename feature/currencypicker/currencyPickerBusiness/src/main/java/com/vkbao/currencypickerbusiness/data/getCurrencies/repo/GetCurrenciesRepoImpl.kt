@@ -4,6 +4,7 @@ import com.vkbao.currencypickerbusiness.data.datasource.remote.CurrencyService
 import com.vkbao.currencypickerbusiness.data.getCurrencies.dto.toEntity
 import com.vkbao.currencypickerbusiness.data.store.CurrencyStore
 import com.vkbao.currencypickerbusiness.domain.GetCurrenciesRepo
+import com.vkbao.utilities.error.ErrorEntity
 import com.vkbao.utilities.error.Exception
 
 class GetCurrenciesRepoImpl(
@@ -25,8 +26,10 @@ class GetCurrenciesRepoImpl(
                 val errorMsg = response.errorBody()?.string() ?: "Unexpected Error"
                 when(response.code()) {
                     in 400..499 -> GetCurrenciesStatus.UndefinedError(
-                        response.code().toString(),
-                        errorMsg
+                        ErrorEntity(
+                            response.code().toString(),
+                            errorMsg
+                        )
                     )
                     else -> throw Exception(response.code().toString(), errorMsg)
                 }

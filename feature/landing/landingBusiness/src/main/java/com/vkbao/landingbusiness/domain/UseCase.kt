@@ -13,11 +13,11 @@ interface StateFlowUseCase<in I, out O> : UseCase<I, Flow<State<O>>>
 interface GetExchangeRatesUseCase : StateFlowUseCase<ExchangeRate, Map<String, Double>>
 
 interface FromCurrencyUseCase {
-    suspend fun getFromCurrency(): Flow<State<String>>
-    suspend fun setFromCurrency(currency: String)
+    fun getFromCurrency(): String
+    fun setFromCurrency(currency: String)
 }
 
 interface ToCurrencyUseCase {
-    suspend fun getToCurrency(): Flow<State<String>>
-    suspend fun setToCurrency(currency: String)
+    fun getToCurrency(): String
+    fun setToCurrency(currency: String)
 }

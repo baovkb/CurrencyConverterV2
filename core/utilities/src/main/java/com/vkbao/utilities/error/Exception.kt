@@ -5,4 +5,4 @@ import kotlin.Exception
 class Exception(
     val code: String,
     override val message: String
-): Exception(message = message)
+): Exception(message)

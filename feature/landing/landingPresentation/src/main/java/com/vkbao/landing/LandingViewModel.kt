@@ -10,6 +10,10 @@ import com.vkbao.landingbusiness.data.getExchangeRate.request.ExchangeRate
 import com.vkbao.landingbusiness.domain.GetExchangeRatesUseCase
 import com.vkbao.currencypickerbusinessapi.currencies.GetCurrenciesProvider
 import com.vkbao.currencypickerbusinessapi.selectedCurrency.SelectedCurrencyProvider
+import com.vkbao.landing.model.SelectionCurrency
+import com.vkbao.landingapi.currencyPicker.CurrencyPickerDeepLinkProvider
+import com.vkbao.landingbusiness.domain.FromCurrencyUseCase
+import com.vkbao.landingbusiness.domain.ToCurrencyUseCase
 import com.vkbao.utilities.flow.mapBoth
 import com.vkbao.utilities.state.State
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +27,9 @@ import javax.inject.Inject
 class LandingViewModel @Inject constructor(
     private val currenciesProvider: GetCurrenciesProvider,
     private val exchangeRatesUseCase: GetExchangeRatesUseCase,
-    private val selectedCurrencyProvider: SelectedCurrencyProvider
+    private val selectedCurrencyProvider: SelectedCurrencyProvider,
+    private val fromCurrencyUseCase: FromCurrencyUseCase,
+    private val toCurrencyUseCase: ToCurrencyUseCase
 ) : ViewModel() {
 
     private val _currenciesState: MutableStateFlow<GetCurrenciesState>
@@ -34,8 +40,23 @@ class LandingViewModel @Inject constructor(
         = MutableStateFlow((ExchangeRateState.Init))
     val exchangeRateState = _exchangeRateState.asStateFlow()
 
-    private val _selectedCurrency = MutableStateFlow<String>("")
-    val selectedCurrency = _selectedCurrency.asStateFlow()
+    private val _selectionCurrency = MutableStateFlow<SelectionCurrency?>(null)
+    val selectionCurrency = _selectionCurrency.asStateFlow()
+
+    fun getSelectionCurrency() {
+        val type = selectedCurrencyProvider.getSelectionType()
+        val currency = selectedCurrencyProvider.getSelectedCurrency()
+        _selectionCurrency.value = SelectionCurrency(type, currency)
+    }
+
+    fun setSelectionCurrency(type: String, currency: String) {
+        selectedCurrencyProvider.setSelectionType(type)
+        selectedCurrencyProvider.setSelectedCurrency(currency)
+    }
+
+    fun clearSelectionCurrency() {
+        selectedCurrencyProvider.clearSelectedCurrency()
+    }
 
     fun getCurrencies() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -82,19 +103,5 @@ class LandingViewModel @Inject constructor(
             decimalDigits = currencyData.decimalDigits,
             code = currencyData.code
         )
-    }
-
-    fun getSelectedCurrency() {
-        viewModelScope.launch(Dispatchers.IO) {
-            selectedCurrencyProvider.getSelectedCurrency().collect {
-                _selectedCurrency.value = it
-            }
-        }
-    }
-
-    fun setSelectedCurrency(currency: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            selectedCurrencyProvider.setSelectedCurrency(currency)
-        }
     }
 }

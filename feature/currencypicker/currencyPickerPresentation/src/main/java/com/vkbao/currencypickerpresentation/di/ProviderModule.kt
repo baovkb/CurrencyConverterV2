@@ -6,11 +6,13 @@ import com.vkbao.currencypickerbusiness.domain.getCurrencies.GetCurrenciesProvid
 import com.vkbao.currencypickerbusiness.domain.selectedCurrency.SelectedCurrencyProviderImpl
 import com.vkbao.currencypickerbusinessapi.currencies.GetCurrenciesProvider
 import com.vkbao.currencypickerbusinessapi.selectedCurrency.SelectedCurrencyProvider
+import com.vkbao.landingapi.currencyPicker.CurrencyPickerDeepLinkProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import navigation.deeplink.CurrencyPickerDeepLinkProviderImpl
 
 @Module
 @InstallIn(ViewModelComponent::class)

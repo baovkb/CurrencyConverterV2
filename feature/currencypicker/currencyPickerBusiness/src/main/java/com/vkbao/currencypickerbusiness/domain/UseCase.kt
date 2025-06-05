@@ -13,6 +13,9 @@ interface StateFlowUseCase<in I, out O> : UseCase<I, Flow<State<O>>>
 interface GetCurrenciesUseCase : StateFlowUseCase<Unit, GetCurrenciesStatus>
 
 interface SelectedCurrencyUseCase {
-    suspend fun getSelectedCurrency(): Flow<String>
-    suspend fun setSelectedCurrency(currency: String)
+    fun getSelectedCurrency(): String
+    fun setSelectedCurrency(currency: String)
+
+    fun getSelectionType(): String
+    fun setSelectionType(type: String)
 }

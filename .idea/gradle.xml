@@ -36,6 +36,7 @@
             <option value="$PROJECT_DIR$/feature/currencypicker/currencyPickerBusinessApi" />
             <option value="$PROJECT_DIR$/feature/currencypicker/currencyPickerPresentation" />
             <option value="$PROJECT_DIR$/feature/landing" />
+            <option value="$PROJECT_DIR$/feature/landing/landingApi" />
             <option value="$PROJECT_DIR$/feature/landing/landingBusiness" />
             <option value="$PROJECT_DIR$/feature/landing/landingBusinessApi" />
             <option value="$PROJECT_DIR$/feature/landing/landingPresentation" />

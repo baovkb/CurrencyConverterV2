@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vkbao.landing.LandingViewModel
 import com.vkbao.landing.model.ExchangeRateState
@@ -58,6 +62,11 @@ import com.vkbao.test.R
 val backgroundColor = Color(0xfff7f7ff)
 val textColor = Color(0xFF6391FF)
 
+enum class SelectionType {
+    From,
+    To
+}
+
 @Composable
 fun HomeScreen (
     onFromPress: () -> Unit,
@@ -66,17 +75,63 @@ fun HomeScreen (
     modifier: Modifier = Modifier
 ) {
     var fromValue by rememberSaveable { mutableStateOf("0") }
+    var fromCurrency by rememberSaveable { mutableStateOf("") }
+    var toCurrency by rememberSaveable { mutableStateOf("") }
 
     val currenciesState by viewModel.currenciesState.collectAsStateWithLifecycle()
     val exchangeRatesState by viewModel.exchangeRateState.collectAsStateWithLifecycle()
+    val selectionCurrency by viewModel.selectionCurrency.collectAsStateWithLifecycle()
 
+    LaunchedEffect(fromCurrency to toCurrency) {
+        if (fromCurrency.isEmpty() && toCurrency.isEmpty()) {
+            viewModel.getCurrencies()
+        }
+
+        if (fromCurrency.isNotEmpty() && toCurrency.isNotEmpty()) {
+            viewModel.getExchangeRates(ExchangeRate(fromCurrency, toCurrency))
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.getSelectionCurrency()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    selectionCurrency?.let {
+        when(it.type) {
+            SelectionType.From.name -> {
+                fromCurrency = it.currency
+                viewModel.clearSelectionCurrency()
+                viewModel.getSelectionCurrency()
+            }
+            SelectionType.To.name -> {
+                toCurrency = it.currency
+                viewModel.clearSelectionCurrency()
+                viewModel.getSelectionCurrency()
+            }
+        }
+    }
 
     when(currenciesState) {
         is GetCurrenciesState.Error -> {}
         GetCurrenciesState.Init -> {}
         is GetCurrenciesState.Success -> {
-            viewModel.setFromCurrency((currenciesState as GetCurrenciesState.Success).data[0].code)
-            viewModel.setToCurrency((currenciesState as GetCurrenciesState.Success).data[1].code)
+            if (fromCurrency.isEmpty()) {
+                fromCurrency = (currenciesState as GetCurrenciesState.Success).data[0].code
+            }
+            if (toCurrency.isEmpty()) {
+                toCurrency = (currenciesState as GetCurrenciesState.Success).data[1].code
+            }
         }
 
         GetCurrenciesState.Loading -> {}
@@ -86,18 +141,23 @@ fun HomeScreen (
         is ExchangeRateState.Success -> {
             val rateString = (exchangeRatesState as ExchangeRateState.Success).currencies[toCurrency]?.roundToString(2) ?: "0"
             val rateNum = rateString.toDoubleSafely()
-
                 HomeScreen(
                 fromCurrency = fromCurrency,
                 fromValue = fromValue,
                 onFromPress = {
-                    viewModel.setSelectedCurrency(fromCurrency)
+                    viewModel.setSelectionCurrency(
+                        SelectionType.From.name,
+                        fromCurrency
+                    )
                     onFromPress.invoke()
                 },
                 toCurrency = toCurrency,
                 toValue = (fromValue.toDoubleSafely() * rateNum).roundToString(2),
                 onToPress = {
-                    viewModel.setSelectedCurrency(toCurrency)
+                    viewModel.setSelectionCurrency(
+                        SelectionType.To.name,
+                        toCurrency
+                    )
                     onToPress.invoke()
                 },
                 modifier = modifier,
@@ -127,8 +187,6 @@ fun HomeScreen (
         }
         else -> LandingShimmer()
     }
-
-
 }
 
 @Composable

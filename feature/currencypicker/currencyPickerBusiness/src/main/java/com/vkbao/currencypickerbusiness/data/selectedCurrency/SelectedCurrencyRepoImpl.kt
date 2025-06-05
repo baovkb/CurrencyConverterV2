@@ -6,11 +6,19 @@ import com.vkbao.currencypickerbusiness.domain.SelectedCurrencyRepo
 class SelectedCurrencyRepoImpl(
     private val store: SelectedCurrenciesStore
 ): SelectedCurrencyRepo {
-    override suspend fun getSelectedCurrency(): String {
+    override fun getSelectedCurrency(): String {
         return store.currency
     }
 
-    override suspend fun setSelectedCurrency(currency: String) {
+    override fun setSelectedCurrency(currency: String) {
         store.currency = currency
+    }
+
+    override fun getSelectionType(): String {
+        return store.selectionType
+    }
+
+    override fun setSelectionType(type: String) {
+        store.selectionType = type
     }
 }

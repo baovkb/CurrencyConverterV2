@@ -9,11 +9,11 @@ interface Repository<in I, out O> {
 interface GetExchangeRatesRepo : Repository<ExchangeRate, Map<String, Double>>
 
 interface FromCurrencyRepo {
-    suspend fun getFromCurrency(): String
-    suspend fun setFromCurrency(currency: String)
+    fun getFromCurrency(): String
+    fun setFromCurrency(currency: String)
 }
 
 interface ToCurrencyRepo {
-    suspend fun getToCurrency(): String
-    suspend fun setToCurrency(currency: String)
+    fun getToCurrency(): String
+    fun setToCurrency(currency: String)
 }

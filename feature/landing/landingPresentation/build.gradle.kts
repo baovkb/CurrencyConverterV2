@@ -8,6 +8,9 @@ plugins {
     kotlin("plugin.serialization") version "2.1.0"
 }
 
+group = "com.vkbao.landingPresentation"
+version = "1.0.0"
+
 android {
     namespace = "com.vkbao.test"
     compileSdk = 35
@@ -82,4 +85,5 @@ dependencies {
 
     implementation(project(Modules.landingBusiness))
     implementation(project(Modules.landingBusinessApi))
+    implementation(project(Modules.landingApi))
 }

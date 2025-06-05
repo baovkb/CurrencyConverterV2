@@ -60,11 +60,18 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
+    implementation(project(Modules.cores))
+
+    implementation(project(Modules.networkBusiness))
+    implementation(project(Modules.networkPresentation))
+    implementation(project(Modules.networkBusinessApi))
+
     implementation(project(Modules.landingPresentation))
     implementation(project(Modules.landingBusiness))
-    implementation(project(":core:network:networkbusinessapi"))
-    implementation(project(":core:network:networkbusiness"))
-    implementation(project(":core:network:networkpresentation"))
+    implementation(project(Modules.landingBusinessApi))
+    implementation(project(Modules.landingApi))
 
-    implementation(project(":core:corelibs"))
+    implementation(project(Modules.currencyPickerBusiness))
+    implementation(project(Modules.currencyPickerBusinessApi))
+    implementation((project(Modules.currencyPickerPresentation)))
 }

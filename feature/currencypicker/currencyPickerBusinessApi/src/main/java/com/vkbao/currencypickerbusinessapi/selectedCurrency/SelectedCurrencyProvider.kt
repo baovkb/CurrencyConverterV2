@@ -1,8 +1,11 @@
 package com.vkbao.currencypickerbusinessapi.selectedCurrency
 
-import kotlinx.coroutines.flow.Flow
-
 interface SelectedCurrencyProvider {
-    suspend fun getSelectedCurrency(): Flow<String>
-    suspend fun setSelectedCurrency(currency: String)
+    fun getSelectedCurrency(): String
+    fun setSelectedCurrency(currency: String)
+
+    fun getSelectionType(): String
+    fun setSelectionType(type: String)
+
+    fun clearSelectedCurrency()
 }

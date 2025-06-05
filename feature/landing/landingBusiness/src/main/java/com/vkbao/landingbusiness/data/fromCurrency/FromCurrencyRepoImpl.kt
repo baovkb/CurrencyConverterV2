@@ -6,11 +6,11 @@ import com.vkbao.landingbusiness.domain.FromCurrencyRepo
 class FromCurrencyRepoImpl(
     private val store: ExchangeRateStore
 ): FromCurrencyRepo {
-    override suspend fun getFromCurrency(): String {
+    override fun getFromCurrency(): String {
         return store.fromCurrency
     }
 
-    override suspend fun setFromCurrency(currency: String) {
+    override fun setFromCurrency(currency: String) {
         store.fromCurrency = currency
     }
 }

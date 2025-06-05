@@ -9,6 +9,9 @@ interface Repository<in I, out O> {
 interface GetCurrenciesRepo : Repository<Unit, GetCurrenciesStatus>
 
 interface SelectedCurrencyRepo {
-    suspend fun getSelectedCurrency(): String
-    suspend fun setSelectedCurrency(currency: String)
+    fun getSelectedCurrency(): String
+    fun setSelectedCurrency(currency: String)
+
+    fun getSelectionType(): String
+    fun setSelectionType(type: String)
 }
