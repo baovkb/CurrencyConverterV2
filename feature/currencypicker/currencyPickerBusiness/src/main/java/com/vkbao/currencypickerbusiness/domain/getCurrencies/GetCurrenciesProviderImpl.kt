@@ -8,6 +8,8 @@ import com.vkbao.currencypickerbusinessapi.currencies.GetCurrenciesProvider
 import com.vkbao.utilities.flow.flowState
 import com.vkbao.utilities.state.State
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 
 class GetCurrenciesProviderImpl(
     private val repo: GetCurrenciesRepo

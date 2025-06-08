@@ -126,11 +126,14 @@ fun HomeScreen (
         is GetCurrenciesState.Error -> {}
         GetCurrenciesState.Init -> {}
         is GetCurrenciesState.Success -> {
+            val data = (currenciesState as GetCurrenciesState.Success).data
+            if (data.size < 2) return
+
             if (fromCurrency.isEmpty()) {
-                fromCurrency = (currenciesState as GetCurrenciesState.Success).data[0].code
+                fromCurrency = data[0].code
             }
             if (toCurrency.isEmpty()) {
-                toCurrency = (currenciesState as GetCurrenciesState.Success).data[1].code
+                toCurrency = data[1].code
             }
         }
 

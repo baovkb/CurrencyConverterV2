@@ -37,10 +37,13 @@ suspend fun flowStateErrorOf(
 
 suspend fun <T> flowState(
     block: suspend () -> T
-): Flow<State<T>> {
-     return flowStateOf(block.invoke())
-         .catch {
-             val errorEntity = ErrorEntity("000", it.message ?: "Unexpected Error")
-             emit(State.Error(errorEntity))
-         }
+): Flow<State<T>> = flow {
+    runCatching { block.invoke() }
+        .onSuccess {
+            emit(State.Success(it))
+        }
+        .onFailure {
+            val errorEntity = ErrorEntity("000", it.message ?: "Unexpected Error")
+            emit(State.Error(errorEntity))
+        }
 }
